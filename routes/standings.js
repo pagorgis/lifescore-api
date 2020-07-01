@@ -20,8 +20,8 @@ const httpHeaders = {
 // Fetches the standings information on page load, returns json object and updates the database.
 router.get('/', async (req, res) => {
     try {
-        const savedTest = await fetch(FETCH_STATISTICS_URL + leagueIds[0], httpHeaders);
-        const data = await savedTest.json();
+        const savedStandings = await fetch(FETCH_STATISTICS_URL + leagueIds[0], httpHeaders);
+        const data = await savedStandings.json();
         updateStandings(data);
         res.json(data);
     } catch (err) {
@@ -55,9 +55,9 @@ const updateStandings = async data => {
     }
     try {
         await Standing.deleteMany({});
-        console.log("Data removed");
+        console.log("Standings database entries removed");
         await Standing.insertMany(standingsList);
-        console.log("Data inserted");
+        console.log("Standings database entries updated");
     } catch (err) {
         console.log(err);
     }

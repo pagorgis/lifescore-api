@@ -58,9 +58,9 @@ const updateNextGames = async data => {
     }
     try {
         await NextGame.deleteMany({});
-        console.log("Data removed");
+        console.log("Next games database entries removed");
         await NextGame.insertMany(nextGamesList);
-        console.log("Data inserted");
+        console.log("Next games database entries updated");
     } catch (err) {
         console.log(err);
     }
