@@ -5,8 +5,7 @@ const fetch = require('node-fetch');
 require('dotenv/config');
 
 // Info to acquire X next games based on league.
-const FETCH_NEXT_GAMES_URL = 'http://v2.api-football.com/fixtures/league/524/next/20'
-const leagueIds = [524, 775, 891, 754, 1329] // ENG, ITA, SPA, GER, SWE
+const FETCH_LIVE_GAMES_URL = 'http://v2.api-football.com/fixtures/live/524-775-891-754-1329';
 
 // Header used in API Football calls, key is required.
 const httpHeaders = {
@@ -19,8 +18,8 @@ const httpHeaders = {
 // Fetches the information on page load
 router.get('/', async (req, res) => {
     try {
-        const fetchNextGames = await fetch(FETCH_NEXT_GAMES_URL, httpHeaders);
-        const data = await fetchNextGames.json();
+        const fetchLiveGames = await fetch(FETCH_LIVE_GAMES_URL, httpHeaders);
+        const data = await fetchLiveGames.json();
         res.json(data);
     } catch (err) {
         res.json({ message: err });

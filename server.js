@@ -2,16 +2,26 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 require('dotenv/config');
 
-app.use(bodyParser.json())
+// Middlewares
+app.use(cors());
+app.use(bodyParser.json());
 
 // Import routes
-const testsRoute = require('./routes/tests')
-const statisticsRoute = require('./routes/statistics')
+const testsRoute = require('./routes/tests');
+const liveGamesRoute = require('./routes/livegames');
+const lastGamesRoute = require('./routes/lastgames');
+const nextGamesRoute = require('./routes/nextgames');
+const standingsRoute = require('./routes/standings');
 
-app.use('/tests', testsRoute)
-app.use('/statistics', statisticsRoute)
+
+app.use('/tests', testsRoute);
+app.use('/livegames', liveGamesRoute);
+app.use('/lastgames', lastGamesRoute);
+app.use('/nextgames', nextGamesRoute);
+app.use('/standings', standingsRoute);
 
 // Routes
 app.get('/', (req, res) => {
@@ -21,7 +31,7 @@ app.get('/', (req, res) => {
 // Connect to database
 mongoose.connect(
     process.env.DB_CONNECTION,
-    { useNewUrlParser: true },
+    { useNewUrlParser: true, useUnifiedTopology: true },
     () => console.log("Connected to database!")
 );
 

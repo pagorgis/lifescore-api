@@ -1,0 +1,75 @@
+Standing, each team: api.standings[orderNumber].
+- rank
+- team_id
+- teamName
+- logo
+- group
+- forme
+- all.matchsPlayed
+- all.win
+- all.draw
+- all.lose
+- all.goalsFor
+- all.goalsAgainst
+- goalsDiff
+- points
+
+Live games, each game: api.fixtures[orderNumber]
+- fixture_id
+- league_id
+- league.name
+- event_date
+- event_timestamp
+- round
+- status
+- elapsed
+- homeTeam.team_id
+- homeTeam.team_name
+- homeTeam.logo
+- awayTeam.team_id
+- awayTeam.team_name
+- awayTeam.logo
+- goalsHomeTeam
+- goalsAwayTeam
+- score.fulltime #
+- events
+  - elapsed
+  - team_id
+  - player
+  - assist
+  - type
+  - detail
+
+Next round's games, each game: api.fixtures[orderNumber]
+- fixture_id
+- league_id
+- league.name
+- event_date
+- event_timestamp
+- round
+- status
+- elapsed #
+- homeTeam.team_id
+- homeTeam.team_name
+- homeTeam.logo
+- awayTeam.team_id
+- awayTeam.team_name
+- awayTeam.logo
+
+Last round's games, each game: api.fixtures[orderNumber]
+- fixture_id
+- league_id
+- league.name
+- event_date
+- event_timestamp
+- round
+- status
+- homeTeam.team_id
+- homeTeam.team_name
+- homeTeam.logo
+- awayTeam.team_id
+- awayTeam.team_name
+- awayTeam.logo
+- goalsHomeTeam
+- goalsAwayTeam
+- score.fulltime #
