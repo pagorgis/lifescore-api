@@ -8,6 +8,7 @@ const Standing = require('../models/Standing');
 // Fetch statistics based on league. Add leagueId after leagueTable/.
 const FETCH_STATISTICS_URL = 'http://v2.api-football.com/leagueTable/'
 const leagueIds = [524, 775, 891, 754, 1329] // ENG, ITA, SPA, GER, SWE
+let standingsCollection = [];
 
 // Header used in API Football calls, key is required.
 const httpHeaders = {
@@ -19,10 +20,14 @@ const httpHeaders = {
 
 // Fetches the standings information on page load, returns json object and updates the database.
 router.get('/', async (req, res) => {
+    standingsCollection = [];
     try {
-        const savedStandings = await fetch(FETCH_STATISTICS_URL + leagueIds[0], httpHeaders);
-        const data = await savedStandings.json();
-        updateStandings(data, leagueIds[0]);
+        for(let i = 0; i < leagueIds.length; i++) {
+            const savedStandings = await fetch(FETCH_STATISTICS_URL + leagueIds[i], httpHeaders);
+            const data = await savedStandings.json();
+            updateStandings(data, leagueIds[i]);
+        }
+        updateDatabase();
         res.json(data);
     } catch (err) {
         res.json({ message: err });
@@ -64,10 +69,14 @@ const updateStandings = async (data, leagueId) => {
         };
         standingsList.push(standingObject);
     }
+    standingsCollection.push({leagueId: leagueId, standings: standingsList});
+}
+
+const updateDatabase = async () => {
     try {
         await Standing.deleteMany({});
         console.log("Standings database entries removed");
-        await Standing.insertMany(standingsList);
+        await Standing.insertMany(standingsCollection);
         console.log("Standings database entries updated");
     } catch (err) {
         console.log(err);

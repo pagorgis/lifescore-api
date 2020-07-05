@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const StandingSchema = mongoose.Schema({
+const StandingsDetails = mongoose.Schema({
     leagueId: Number,
     rank: Number,
     teamId: Number,
@@ -17,5 +17,10 @@ const StandingSchema = mongoose.Schema({
     goalsDiff: Number,
     points: Number,
 });
+
+const StandingSchema = mongoose.Schema({
+    leagueId: Number,
+    standings: [StandingsDetails]
+})
 
 module.exports = mongoose.model('Standing', StandingSchema);
