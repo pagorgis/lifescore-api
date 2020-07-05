@@ -22,20 +22,31 @@ router.get('/', async (req, res) => {
     try {
         const savedStandings = await fetch(FETCH_STATISTICS_URL + leagueIds[0], httpHeaders);
         const data = await savedStandings.json();
-        updateStandings(data);
+        updateStandings(data, leagueIds[0]);
         res.json(data);
     } catch (err) {
         res.json({ message: err });
     }
 });
 
+// For the front-end to acquire
+router.get('/test', async (req, res) => {
+    try {
+        const savedStandings = await Standing.find({});
+        res.json(savedStandings);
+    } catch (err) {
+        res.json({ message: err });
+    }
+});
+
 // Deletes and inserts the new standings to the database collection 'dev.standings'.
-const updateStandings = async data => {
+const updateStandings = async (data, leagueId) => {
     standingsLength = data.api.standings[0].length;
     let standingsList = [];
     for(let i = 0; i < standingsLength; i++) {
         const standings = data.api.standings[0];
         const standingObject = {
+            leagueId: leagueId,
             rank: standings[i].rank,
             teamId: standings[i].team_id,
             teamName: standings[i].teamName,

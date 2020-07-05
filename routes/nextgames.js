@@ -29,6 +29,17 @@ router.get('/', async (req, res) => {
     }
 });
 
+// For the front-end to acquire
+router.get('/test', async (req, res) => {
+    try {
+        const savedNextGames = await NextGame.find({});
+        res.json(savedNextGames);
+    } catch (err) {
+        res.json({ message: err });
+    }
+});
+
+
 // Deletes and inserts the new upcoming games to the database collection 'dev.nextgames'.
 const updateNextGames = async data => {
     nextGamesLength = data.api.fixtures.length;

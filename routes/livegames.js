@@ -28,6 +28,16 @@ router.get('/', async (req, res) => {
     }
 });
 
+// For the front-end to acquire
+router.get('/test', async (req, res) => {
+    try {
+        const savedLiveGames = await LiveGame.find({});
+        res.json(savedLiveGames);
+    } catch (err) {
+        res.json({ message: err });
+    }
+});
+
 // Deletes and inserts the new live games to the database collection 'dev.livegames'.
 const updateLiveGames = async data => {
     liveGamesLength = data.api.fixtures.length;

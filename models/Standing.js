@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const StandingSchema = mongoose.Schema({
+    leagueId: Number,
     rank: Number,
     teamId: Number,
     teamName: String,

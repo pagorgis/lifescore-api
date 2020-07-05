@@ -6,7 +6,7 @@ require('dotenv/config');
 const LastGame = require('../models/LastGame');
 
 // Info to acquire X last games based on league.
-const FETCH_NEXT_GAMES_URL = 'http://v2.api-football.com/fixtures/league/524/last/18'
+const FETCH_NEXT_GAMES_URL = 'http://v2.api-football.com/fixtures/league/524/last/10'
 const leagueIds = [524, 775, 891, 754, 1329] // ENG, ITA, SPA, GER, SWE
 
 // Header used in API Football calls, key is required.
@@ -24,6 +24,16 @@ router.get('/', async (req, res) => {
         const data = await savedLastGames.json();
         updateLastGames(data);
         res.json(data);
+    } catch (err) {
+        res.json({ message: err });
+    }
+});
+
+// For the front-end to acquire
+router.get('/test', async (req, res) => {
+    try {
+        const savedLastGames = await LastGame.find({});
+        res.json(savedLastGames);
     } catch (err) {
         res.json({ message: err });
     }
