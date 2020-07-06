@@ -6,8 +6,10 @@ require('dotenv/config');
 const NextGame = require('../models/NextGame');
 
 // Info to acquire X next games based on league.
-const FETCH_NEXT_GAMES_URL = 'http://v2.api-football.com/fixtures/league/524/next/18'
+const FETCH_NEXT_GAMES_URL_1 = 'http://v2.api-football.com/fixtures/league/'
+const FETCH_NEXT_GAMES_URL_2 = '/next/10'
 const leagueIds = [524, 775, 891, 754, 1329] // ENG, ITA, SPA, GER, SWE
+let nextGamesCollection = [];
 
 // Header used in API Football calls, key is required.
 const httpHeaders = {
@@ -19,11 +21,17 @@ const httpHeaders = {
 
 // Fetches the upcoming games information on page load, returns json object and updates the database.
 router.get('/', async (req, res) => {
+    nextGamesCollection = [];
     try {
-        const savedNextGames = await fetch(FETCH_NEXT_GAMES_URL, httpHeaders);
-        const data = await savedNextGames.json();
-        updateNextGames(data);
-        res.json(data);
+        for(let i = 0; i < leagueIds.length; i++) {
+            const savedNextGames = await fetch(
+                FETCH_NEXT_GAMES_URL_1 + leagueIds[i] + FETCH_NEXT_GAMES_URL_2, httpHeaders
+            );
+            const data = await savedNextGames.json();
+            updateNextGames(data, leagueIds[i]);
+        }
+        updateDatabase();
+        res.json(nextGamesCollection);
     } catch (err) {
         res.json({ message: err });
     }
@@ -41,7 +49,7 @@ router.get('/test', async (req, res) => {
 
 
 // Deletes and inserts the new upcoming games to the database collection 'dev.nextgames'.
-const updateNextGames = async data => {
+const updateNextGames = async (data, leagueId) => {
     nextGamesLength = data.api.fixtures.length;
     let nextGamesList = [];
     for(let i = 0; i < nextGamesLength; i++) {
@@ -67,10 +75,14 @@ const updateNextGames = async data => {
         };
         nextGamesList.push(nextGameObject);
     }
+    nextGamesCollection.push({leagueId: leagueId, nextgames: nextGamesList});
+}
+
+const updateDatabase = async () => {
     try {
         await NextGame.deleteMany({});
         console.log("Next games database entries removed");
-        await NextGame.insertMany(nextGamesList);
+        await NextGame.insertMany(nextGamesCollection);
         console.log("Next games database entries updated");
     } catch (err) {
         console.log(err);

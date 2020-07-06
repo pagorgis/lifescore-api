@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
             updateLastGames(data, leagueIds[i]);
         }
         updateDatabase();
-        res.json(data);
+        res.json(lastGamesCollection);
     } catch (err) {
         res.json({ message: err });
     }
