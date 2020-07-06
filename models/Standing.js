@@ -21,6 +21,6 @@ const StandingsDetails = mongoose.Schema({
 const StandingSchema = mongoose.Schema({
     leagueId: Number,
     standings: [StandingsDetails]
-})
+});
 
 module.exports = mongoose.model('Standing', StandingSchema);

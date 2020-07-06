@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const LastGameSchema = mongoose.Schema({
+const LastGameDetails = mongoose.Schema({
     fixtureId: Number,
     leagueId: Number,
     leagueName: String,
@@ -20,6 +20,11 @@ const LastGameSchema = mongoose.Schema({
     },
     goalsHomeTeam: Number,
     goalsAwayTeam: Number,
+});
+
+const LastGameSchema = mongoose.Schema({
+  leagueId: Number,
+  lastgames: [LastGameDetails]
 });
 
 module.exports = mongoose.model('LastGame', LastGameSchema);
