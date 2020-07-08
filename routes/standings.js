@@ -4,10 +4,13 @@ const router = express.Router();
 const fetch = require('node-fetch');
 require('dotenv/config');
 const Standing = require('../models/Standing');
+var schedule = require('node-schedule');
 
 // Fetch statistics based on league. Add leagueId after leagueTable/.
-const FETCH_STATISTICS_URL = 'http://v2.api-football.com/leagueTable/'
-const leagueIds = [524, 775, 891, 754, 1329] // ENG, ITA, SPA, GER, SWE
+const FETCH_STATISTICS_URL = 'http://v2.api-football.com/leagueTable/';
+const leagueIds = [524, 775, 891, 754, 1329]; // ENG, ITA, SPA, GER, SWE
+
+// Stores objects containing processed data from API for each league (length of leagueIds).
 let standingsCollection = [];
 
 // Header used in API Football calls, key is required.
@@ -18,8 +21,14 @@ const httpHeaders = {
     }
 };
 
-// Fetches the standings information on page load, returns json object and updates the database.
-router.get('/', async (req, res) => {
+// Imports node-schedule to execute the fetch function at midnight.
+let scheduleUpdate = schedule.scheduleJob('0 0 * * *', function() {
+    fetchFromApiUpdateDb();
+});
+
+// Fetches data from the API of relevant leagues, structures the data as Javascript objects, 
+// then push the array of next games for each league to the database.
+const fetchFromApiUpdateDb = async () => {
     standingsCollection = [];
     try {
         for(let i = 0; i < leagueIds.length; i++) {
@@ -28,23 +37,13 @@ router.get('/', async (req, res) => {
             updateStandings(data, leagueIds[i]);
         }
         updateDatabase();
-        res.json(standingsCollection);
     } catch (err) {
-        res.json({ message: err });
+        console.log(err);
     }
-});
+};
 
-// For the front-end to acquire
-router.get('/test', async (req, res) => {
-    try {
-        const savedStandings = await Standing.find({});
-        res.json(savedStandings);
-    } catch (err) {
-        res.json({ message: err });
-    }
-});
-
-// Deletes and inserts the new standings to the database collection 'dev.standings'.
+// Creates the data structure for standings and pushes them to standingsCollection array. 
+// Each element contains a certain league.
 const updateStandings = async (data, leagueId) => {
     standingsLength = data.api.standings[0].length;
     let standingsList = [];
@@ -70,17 +69,46 @@ const updateStandings = async (data, leagueId) => {
         standingsList.push(standingObject);
     }
     standingsCollection.push({leagueId: leagueId, standings: standingsList});
-}
+};
 
+// Updates the database by removing previous records and inserting the new ones in standingsCollection.
 const updateDatabase = async () => {
     try {
         await Standing.deleteMany({});
-        console.log("Standings database entries removed");
+        console.log("STANDINGS database entries removed | " + Date(Date.now()));
         await Standing.insertMany(standingsCollection);
-        console.log("Standings database entries updated");
+        console.log("STANDINGS database entries updated | " + Date(Date.now()));
     } catch (err) {
         console.log(err);
     }
-}
+};
+
+// For the front-end to acquire
+router.get('/', async (req, res) => {
+    try {
+        const savedStandings = await Standing.find({});
+        res.json(savedStandings);
+    } catch (err) {
+        res.json({ message: err });
+    }
+});
+
+/*
+// Fetches the standings information on page load, returns json object and updates the database.
+router.get('/', async (req, res) => {
+    standingsCollection = [];
+    try {
+        for(let i = 0; i < leagueIds.length; i++) {
+            const savedStandings = await fetch(FETCH_STATISTICS_URL + leagueIds[i], httpHeaders);
+            const data = await savedStandings.json();
+            updateStandings(data, leagueIds[i]);
+        }
+        updateDatabase();
+        res.json(standingsCollection);
+    } catch (err) {
+        res.json({ message: err });
+    }
+});
+*/
 
 module.exports = router;

@@ -4,11 +4,14 @@ const router = express.Router();
 const fetch = require('node-fetch');
 require('dotenv/config');
 const LastGame = require('../models/LastGame');
+var schedule = require('node-schedule');
 
 // Info to acquire X last games based on league.
-const FETCH_LAST_GAMES_URL_1 = 'http://v2.api-football.com/fixtures/league/'
-const FETCH_LAST_GAMES_URL_2 = '/last/10'
-const leagueIds = [524, 775, 891, 754, 1329] // ENG, ITA, SPA, GER, SWE
+const FETCH_LAST_GAMES_URL_1 = 'http://v2.api-football.com/fixtures/league/';
+const FETCH_LAST_GAMES_URL_2 = '/last/10';
+const leagueIds = [524, 775, 891, 754, 1329]; // ENG, ITA, SPA, GER, SWE
+
+// Stores objects containing processed data from API for each league (length of leagueIds).
 let lastGamesCollection = [];
 
 // Header used in API Football calls, key is required.
@@ -19,8 +22,14 @@ const httpHeaders = {
     }
 };
 
-// Fetches the upcoming games information on page load, returns json object and updates the database.
-router.get('/', async (req, res) => {
+// Imports node-schedule to execute the fetch function at midnight.
+let scheduleUpdate = schedule.scheduleJob('0 0 * * *', function() {
+    fetchFromApiUpdateDb();
+});
+
+// Fetches data from the API of relevant leagues, structures the data as Javascript objects, 
+// then push the array of last games for each league to the database.
+const fetchFromApiUpdateDb = async () => {
     lastGamesCollection = [];
     try {
         for(let i = 0; i < leagueIds.length; i++) {
@@ -31,23 +40,13 @@ router.get('/', async (req, res) => {
             updateLastGames(data, leagueIds[i]);
         }
         updateDatabase();
-        res.json(lastGamesCollection);
     } catch (err) {
-        res.json({ message: err });
+        console.log(err);
     }
-});
+};
 
-// For the front-end to acquire
-router.get('/test', async (req, res) => {
-    try {
-        const savedLastGames = await LastGame.find({});
-        res.json(savedLastGames);
-    } catch (err) {
-        res.json({ message: err });
-    }
-});
-
-// Deletes and inserts the new upcoming games to the database collection 'dev.lastgames'.
+// Creates the data structure for previous games and pushes them to lastGamesCollection array. 
+// Each element contains a certain league.
 const updateLastGames = async (data, leagueId) => {
     lastGamesLength = data.api.fixtures.length;
     let lastGamesList = [];
@@ -77,17 +76,48 @@ const updateLastGames = async (data, leagueId) => {
         lastGamesList.push(lastGameObject);
     }
     lastGamesCollection.push({leagueId: leagueId, lastgames: lastGamesList});
-}
+};
 
+// Updates the database by removing previous records and inserting the new ones in lastGamesCollection.
 const updateDatabase = async () => {
     try {
         await LastGame.deleteMany({});
-        console.log("Last games database entries removed");
+        console.log("LAST games database entries removed | " + Date(Date.now()));
         await LastGame.insertMany(lastGamesCollection);
-        console.log("Last games database entries updated");
+        console.log("LAST games database entries updated | " + Date(Date.now()));
     } catch (err) {
         console.log(err);
     }
-}
+};
+
+// The GET-request from the front-end to acquire the data from the database.
+router.get('/', async (req, res) => {
+    try {
+        const savedLastGames = await LastGame.find({});
+        res.json(savedLastGames);
+    } catch (err) {
+        res.json({ message: err });
+    }
+});
+
+// Fetches the previous games information on page load, returns json object and updates the database.
+/*
+router.get('/', async (req, res) => {
+    lastGamesCollection = [];
+    try {
+        for(let i = 0; i < leagueIds.length; i++) {
+            const savedLastGames = await fetch(
+                FETCH_LAST_GAMES_URL_1 + leagueIds[i] + FETCH_LAST_GAMES_URL_2, httpHeaders
+            );
+            const data = await savedLastGames.json();
+            updateLastGames(data, leagueIds[i]);
+        }
+        updateDatabase();
+        res.json(lastGamesCollection);
+    } catch (err) {
+        res.json({ message: err });
+    }
+});
+*/
 
 module.exports = router;

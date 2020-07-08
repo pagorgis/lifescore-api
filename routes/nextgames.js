@@ -4,11 +4,14 @@ const router = express.Router();
 const fetch = require('node-fetch');
 require('dotenv/config');
 const NextGame = require('../models/NextGame');
+var schedule = require('node-schedule');
 
 // Info to acquire X next games based on league.
-const FETCH_NEXT_GAMES_URL_1 = 'http://v2.api-football.com/fixtures/league/'
-const FETCH_NEXT_GAMES_URL_2 = '/next/10'
-const leagueIds = [524, 775, 891, 754, 1329] // ENG, ITA, SPA, GER, SWE
+const FETCH_NEXT_GAMES_URL_1 = 'http://v2.api-football.com/fixtures/league/';
+const FETCH_NEXT_GAMES_URL_2 = '/next/10';
+const leagueIds = [524, 775, 891, 754, 1329]; // ENG, ITA, SPA, GER, SWE
+
+// Stores objects containing processed data from API for each league (length of leagueIds).
 let nextGamesCollection = [];
 
 // Header used in API Football calls, key is required.
@@ -19,8 +22,14 @@ const httpHeaders = {
     }
 };
 
-// Fetches the upcoming games information on page load, returns json object and updates the database.
-router.get('/', async (req, res) => {
+// Imports node-schedule to execute the fetch function at midnight.
+let scheduleUpdate = schedule.scheduleJob('0 0 * * *', function() {
+    fetchFromApiUpdateDb();
+});
+
+// Fetches data from the API of relevant leagues, structures the data as Javascript objects, 
+// then push the array of next games for each league to the database.
+const fetchFromApiUpdateDb = async () => {
     nextGamesCollection = [];
     try {
         for(let i = 0; i < leagueIds.length; i++) {
@@ -31,24 +40,13 @@ router.get('/', async (req, res) => {
             updateNextGames(data, leagueIds[i]);
         }
         updateDatabase();
-        res.json(nextGamesCollection);
     } catch (err) {
-        res.json({ message: err });
+        console.log(err);
     }
-});
+};
 
-// For the front-end to acquire
-router.get('/test', async (req, res) => {
-    try {
-        const savedNextGames = await NextGame.find({});
-        res.json(savedNextGames);
-    } catch (err) {
-        res.json({ message: err });
-    }
-});
-
-
-// Deletes and inserts the new upcoming games to the database collection 'dev.nextgames'.
+// Creates the data structure for upcoming games and pushes them to nextGamesCollection array. 
+// Each element contains a certain league.
 const updateNextGames = async (data, leagueId) => {
     nextGamesLength = data.api.fixtures.length;
     let nextGamesList = [];
@@ -76,17 +74,48 @@ const updateNextGames = async (data, leagueId) => {
         nextGamesList.push(nextGameObject);
     }
     nextGamesCollection.push({leagueId: leagueId, nextgames: nextGamesList});
-}
+};
 
+// Updates the database by removing previous records and inserting the new ones in nextGamesCollection.
 const updateDatabase = async () => {
     try {
         await NextGame.deleteMany({});
-        console.log("Next games database entries removed");
+        console.log("NEXT games database entries removed | " + Date(Date.now()));
         await NextGame.insertMany(nextGamesCollection);
-        console.log("Next games database entries updated");
+        console.log("NEXT games database entries updated | " + Date(Date.now()));
     } catch (err) {
         console.log(err);
     }
-}
+};
+
+// The GET-request from the front-end to acquire the data from the database.
+router.get('/', async (req, res) => {
+    try {
+        const savedNextGames = await NextGame.find({});
+        res.json(savedNextGames);
+    } catch (err) {
+        res.json({ message: err });
+    }
+});
+
+// Fetches the upcoming games information on page load, returns json object and updates the database.
+/*
+router.get('/', async (req, res) => {
+    nextGamesCollection = [];
+    try {
+        for(let i = 0; i < leagueIds.length; i++) {
+            const savedNextGames = await fetch(
+                FETCH_NEXT_GAMES_URL_1 + leagueIds[i] + FETCH_NEXT_GAMES_URL_2, httpHeaders
+            );
+            const data = await savedNextGames.json();
+            updateNextGames(data, leagueIds[i]);
+        }
+        updateDatabase();
+        res.json(nextGamesCollection);
+    } catch (err) {
+        res.json({ message: err });
+    }
+});
+*/
 
 module.exports = router;

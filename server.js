@@ -10,14 +10,12 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Import routes
-const testsRoute = require('./routes/tests');
 const liveGamesRoute = require('./routes/livegames');
 const lastGamesRoute = require('./routes/lastgames');
 const nextGamesRoute = require('./routes/nextgames');
 const standingsRoute = require('./routes/standings');
 
 
-app.use('/tests', testsRoute);
 app.use('/livegames', liveGamesRoute);
 app.use('/lastgames', lastGamesRoute);
 app.use('/nextgames', nextGamesRoute);
@@ -25,7 +23,7 @@ app.use('/standings', standingsRoute);
 
 // Routes
 app.get('/', (req, res) => {
-    res.send('HOME');
+    res.send('Hello world!');
 });
 
 // Connect to database
