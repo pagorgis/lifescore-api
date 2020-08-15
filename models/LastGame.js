@@ -1,5 +1,7 @@
+// Initialize necessary modules for database
 const mongoose = require('mongoose');
 
+// Create the structure of data that the database will hold
 const LastGameDetails = mongoose.Schema({
     fixtureId: Number,
     leagueId: Number,
@@ -22,9 +24,12 @@ const LastGameDetails = mongoose.Schema({
     goalsAwayTeam: Number,
 });
 
+// Finalize the structure of data by putting the details of
+// last games into an array, and it's leagueId
 const LastGameSchema = mongoose.Schema({
   leagueId: Number,
   lastgames: [LastGameDetails]
 });
 
+// Export the model to be used by routes so database operations can be performed
 module.exports = mongoose.model('LastGame', LastGameSchema);

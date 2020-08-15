@@ -1,3 +1,4 @@
+// Initialize necessary modules
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
@@ -15,7 +16,7 @@ const lastGamesRoute = require('./routes/lastgames');
 const nextGamesRoute = require('./routes/nextgames');
 const standingsRoute = require('./routes/standings');
 
-
+// URL paths used for aquiring data from a specific route
 app.use('/livegames', liveGamesRoute);
 app.use('/lastgames', lastGamesRoute);
 app.use('/nextgames', nextGamesRoute);

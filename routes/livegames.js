@@ -36,7 +36,7 @@ const fetchFromApiUpdateDb = async () => {
 // between 13:00-23:59.
 //setInterval(fetchFromApiUpdateDb, 1000*60*12);
 var rule = new schedule.RecurrenceRule();
-rule.hour = new schedule.Range(13, 23);
+rule.hour = new schedule.Range(9, 23);
 rule.minute = [5, 20, 35, 50];
 let scheduleUpdate = schedule.scheduleJob(rule, function() {
     fetchFromApiUpdateDb();

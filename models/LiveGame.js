@@ -1,5 +1,7 @@
+// Initialize necessary modules for database
 const mongoose = require('mongoose');
 
+// Create the structure of game events data
 const EventsSchema = mongoose.Schema({
     elapsed: Number,
     teamId: Number,
@@ -9,6 +11,8 @@ const EventsSchema = mongoose.Schema({
     detail: String,
 })
 
+// Create the structure of data that the database will hold for each
+// live game
 const LiveGameSchema = mongoose.Schema({
     fixtureId: Number,
     leagueId: Number,
@@ -33,4 +37,5 @@ const LiveGameSchema = mongoose.Schema({
     events: [EventsSchema]
 });
 
+// Export the model to be used by routes so database operations can be performed
 module.exports = mongoose.model('LiveGame', LiveGameSchema);
