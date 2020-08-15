@@ -24,7 +24,7 @@ app.use('/standings', standingsRoute);
 
 // Routes
 app.get('/', (req, res) => {
-    res.send('Hello world!');
+    res.send('Welcome to Lifescore API!');
 });
 
 // Connect to database
