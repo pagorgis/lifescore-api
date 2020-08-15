@@ -4,7 +4,8 @@ const router = express.Router();
 const fetch = require('node-fetch');
 require('dotenv/config');
 const Standing = require('../models/Standing');
-var schedule = require('node-schedule');
+const schedule = require('node-schedule');
+const cron = require('node-cron');
 
 // Fetch statistics based on league. Add leagueId after leagueTable/.
 const FETCH_STATISTICS_URL = 'http://v2.api-football.com/leagueTable/';
@@ -21,8 +22,8 @@ const httpHeaders = {
     }
 };
 
-// Imports node-schedule to execute the fetch function at midnight.
-let scheduleUpdate = schedule.scheduleJob('0 0 * * *', function() {
+// Imports node-cron to execute the fetch function at midnight.
+let scheduleUpdate = cron.schedule('0 0 * * *', () => {
     fetchFromApiUpdateDb();
 });
 

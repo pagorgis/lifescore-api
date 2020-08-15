@@ -4,7 +4,8 @@ const router = express.Router();
 const fetch = require('node-fetch');
 require('dotenv/config');
 const LiveGame = require('../models/LiveGame');
-var schedule = require('node-schedule');
+const schedule = require('node-schedule');
+const cron = require('node-cron');
 
 // Info to acquire X next games based on league.
 const FETCH_LIVE_GAMES_URL = 'http://v2.api-football.com/fixtures/live/524-775-891-754-1329';
@@ -21,7 +22,7 @@ const httpHeaders = {
 const fetchFromApiUpdateDb = async () => {
     try {
         let hour = new Date().getHours();
-        if (hour >= 18 && hour <= 23) {
+        if (hour >= 13 && hour <= 23) {
             const savedLiveGames = await fetch(FETCH_LIVE_GAMES_URL, httpHeaders);
             const data = await savedLiveGames.json();
             updateLiveGames(data);
@@ -32,13 +33,10 @@ const fetchFromApiUpdateDb = async () => {
     }
 };
 
-// Imports node-schedule to execute the fetch function every 15 minutes
+// Imports node-cron to execute the fetch function every 15 minutes
 // between 13:00-23:59.
 //setInterval(fetchFromApiUpdateDb, 1000*60*12);
-var rule = new schedule.RecurrenceRule();
-rule.hour = new schedule.Range(13, 23);
-rule.minute = [5, 20, 35, 50];
-let scheduleUpdate = schedule.scheduleJob(rule, function() {
+let scheduleUpdate = cron.schedule('5,20,35,50 * * * *', () => {
     fetchFromApiUpdateDb();
 });
 

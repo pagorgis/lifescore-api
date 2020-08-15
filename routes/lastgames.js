@@ -4,7 +4,8 @@ const router = express.Router();
 const fetch = require('node-fetch');
 require('dotenv/config');
 const LastGame = require('../models/LastGame');
-var schedule = require('node-schedule');
+const schedule = require('node-schedule');
+const cron = require('node-cron');
 
 // Info to acquire X last games based on league.
 const FETCH_LAST_GAMES_URL_1 = 'http://v2.api-football.com/fixtures/league/';
@@ -22,8 +23,8 @@ const httpHeaders = {
     }
 };
 
-// Imports node-schedule to execute the fetch function at midnight.
-let scheduleUpdate = schedule.scheduleJob('0 0 * * *', function() {
+// Imports node-cron to execute the fetch function at midnight.
+let scheduleUpdate = cron.schedule('0 0 * * *', () => {
     fetchFromApiUpdateDb();
 });
 
