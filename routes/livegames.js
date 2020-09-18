@@ -36,7 +36,7 @@ const fetchFromApiUpdateDb = async () => {
 // Imports node-cron to execute the fetch function every 15 minutes
 // between 13:00-23:59.
 //setInterval(fetchFromApiUpdateDb, 1000*60*12);
-let scheduleUpdate = cron.schedule('5,20,35,50 * * * *', () => {
+let scheduleUpdate = cron.schedule('4,16,28,40,52 * * * *', () => {
     fetchFromApiUpdateDb();
 });
 
