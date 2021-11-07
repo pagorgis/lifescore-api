@@ -10,7 +10,7 @@ const cron = require('node-cron');
 // Info to acquire X next games based on league.
 const FETCH_NEXT_GAMES_URL_1 = 'http://v2.api-football.com/fixtures/league/';
 const FETCH_NEXT_GAMES_URL_2 = '/next/10';
-const leagueIds = [2790, 2833, 2857, 2755, 1329]; // ENG, ITA, SPA, GER, SWE
+const leagueIds = [3456, 3576, 3513, 3510, 3176]; // ENG, ITA, SPA, GER, SWE
 
 // Stores objects containing processed data from API for each league (length of leagueIds).
 let nextGamesCollection = [];

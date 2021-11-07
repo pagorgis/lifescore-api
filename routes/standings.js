@@ -9,7 +9,7 @@ const cron = require('node-cron');
 
 // Fetch statistics based on league. Add leagueId after leagueTable/.
 const FETCH_STATISTICS_URL = 'http://v2.api-football.com/leagueTable/';
-const leagueIds = [2790, 2833, 2857, 2755, 1329]; // ENG, ITA, SPA, GER, SWE
+const leagueIds = [3456, 3576, 3513, 3510, 3176]; // ENG, ITA, SPA, GER, SWE
 
 // Stores objects containing processed data from API for each league (length of leagueIds).
 let standingsCollection = [];

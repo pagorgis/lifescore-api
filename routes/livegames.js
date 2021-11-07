@@ -8,7 +8,7 @@ const schedule = require('node-schedule');
 const cron = require('node-cron');
 
 // Info to acquire X next games based on league.
-const FETCH_LIVE_GAMES_URL = 'http://v2.api-football.com/fixtures/live/2790-2833-2857-2755-1329';
+const FETCH_LIVE_GAMES_URL = 'http://v2.api-football.com/fixtures/live/3456-3576-3513-3510-3176';
 
 // Header used in API Football calls, key is required.
 const httpHeaders = {
@@ -22,7 +22,7 @@ const httpHeaders = {
 const fetchFromApiUpdateDb = async () => {
     try {
         let hour = new Date().getHours();
-        if (hour >= 13 && hour <= 23) {
+        if (hour >= 12 && hour <= 22) {
             const savedLiveGames = await fetch(FETCH_LIVE_GAMES_URL, httpHeaders);
             const data = await savedLiveGames.json();
             updateLiveGames(data);
